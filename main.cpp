@@ -2,14 +2,17 @@
 
 using namespace std;
 
-void decode_JSON(string input, vector<string> &categories, vector<string> &contents);
+void decode_JSON(const string &input, vector<string> &categories, vector<string> &contents);
 
-void add_JSON(string input, int entryID, vector<string> &storage, unordered_map<string, int> &lookup,
+void add_JSON(const string &input, int entryID, vector<string> &storage, unordered_map<string, int> &lookup,
               vector<unordered_map<string, vector<int>>> &search);
 
-//void get_JSON(string input);
+void get_JSON(const string &input, vector<string> &storage, unordered_map<string, int> &lookup,
+              vector<unordered_map<string, vector<int>>> &search);
 
 //void delete_JSON(string input);
+
+vector<int> getIntersection(vector<vector<int> > &sets);
 
 int main() {
     vector<string> storage;
@@ -21,14 +24,25 @@ int main() {
     while (n--) {
         string input;
         getline(cin, input);
-        add_JSON(input, entryID, storage, lookup, search);
-        entryID++;
+
+        switch (input[0]) {
+            case 'a':
+                add_JSON(input.substr(3), entryID, storage, lookup, search);
+                entryID++;
+                break;
+            case 'g':
+                get_JSON(input.substr(3), storage, lookup, search);\
+                break;
+
+            default:
+                cerr << "error." << endl;
+        }
     }
 
     cout << "hello";
 }
 
-void decode_JSON(string input, vector<string> &categories, vector<string> &contents) {
+void decode_JSON(const string &input, vector<string> &categories, vector<string> &contents) {
     int i = 0;
     string key, value, temp;
     bool ifKey;
@@ -77,7 +91,7 @@ void decode_JSON(string input, vector<string> &categories, vector<string> &conte
     }
 }
 
-void add_JSON(string input, int entryID, vector<string> &storage, unordered_map<string, int> &lookup,
+void add_JSON(const string &input, int entryID, vector<string> &storage, unordered_map<string, int> &lookup,
               vector<unordered_map<string, vector<int>>> &search) {
     vector<string> categories;
     vector<string> contents;
@@ -95,4 +109,71 @@ void add_JSON(string input, int entryID, vector<string> &storage, unordered_map<
     for (int j = 0; j != (int) categories.size(); ++j) {
         search[lookup[categories[j]]][contents[j]].push_back(entryID);
     }
+}
+
+void get_JSON(const string &input, vector<string> &storage, unordered_map<string, int> &lookup,
+              vector<unordered_map<string, vector<int>>> &search) {
+    vector<string> categories;
+    vector<string> contents;
+
+    decode_JSON(input, categories, contents);
+    vector<vector<int>> partial_results(categories.size());
+    for (int j = 0; j != (int) categories.size(); ++j) {
+        int lookup_number = lookup[categories[j]];
+        if (search[lookup_number].find(contents[j]) != search[lookup_number].end()) {
+            for (auto t: search[lookup[categories[j]]][contents[j]])
+                partial_results[j].push_back(t);
+        } else {
+            cout << "0 entries found\n% ";
+            return;
+        }
+    }
+    vector<int> full_results = getIntersection(partial_results);
+    for (auto c: full_results)
+        cout << storage[c] << endl;
+}
+
+vector<int> getIntersection(vector<vector<int> > &sets) {
+    vector<int> result;
+    int smallest = 0;
+    int minSize = (int) sets[0].size();
+
+    if (sets.size() == 1) {
+        vector<int>::iterator temp;
+        temp = unique(sets[0].begin(), sets[0].end());
+        sets[0].resize((unsigned) (temp - sets[0].begin()));
+        return sets[0];
+    }
+
+    for (int i = 1; i != (int) sets.size(); ++i) {
+        if (minSize > (int) sets[i].size()) {
+            minSize = (int) sets[i].size();
+            smallest = i;
+        }
+    }
+
+    vector<int>::iterator temp;
+    temp = unique(sets[smallest].begin(), sets[smallest].end());
+    sets[smallest].resize((unsigned) (temp - sets[smallest].begin()));
+
+    vector<int> elements;
+    for (auto c: sets[smallest])
+        elements.push_back(c);
+
+    for (auto it = elements.begin(); it != elements.end(); ++it) {
+        bool ifFound = true;
+
+        for (int j = 0; j != (int) sets.size(); ++j) {
+            if (j != smallest) {
+                if (!binary_search(sets[j].begin(), sets[j].end(), *it)) {
+                    ifFound = false;
+                    break;
+                }
+            }
+        }
+
+        if (ifFound)
+            result.push_back(*it);
+    }
+    return result;
 }
