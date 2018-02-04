@@ -1,108 +1,98 @@
 #include<bits/stdc++.h>
 
 using namespace std;
-typedef long long int i64;
 
-struct Json {
-    map<string, string> elements;
-    map<string, Json *> objects;
-    Json *parent;
+void decode_JSON(string input, vector<string> &categories, vector<string> &contents);
 
-    Json() {
-        parent = nullptr;
-    }
-};
+void add_JSON(string input, int entryID, vector<string> &storage, unordered_map<string, int> &lookup,
+              vector<unordered_map<string, vector<int>>> &search);
 
-class query {
-private:
-    vector<string> store;
+//void get_JSON(string input);
 
-public:
-    vector<unordered_map<string, int>> search;
-
-    void add_JSON(string input);
-
-    void get_JSON(string input);
-
-    void delete_JSON(string input);
-
-    void decode_JSON(string input);
-};
+//void delete_JSON(string input);
 
 int main() {
-    while (q--) {
-        getline(cin, s);
-        size_t dot1, dot2;
-        dot1 = -1;
-        currentObj = rootObj;
-        bool exist = true;
-        while ((dot2 = s.find('.', dot1 + 1)) != string::npos) {
-            key = s.substr(dot1 + 1, dot2 - dot1 - 1);
-            if (currentObj->objects.count(key))currentObj = currentObj->objects[key];
-            else {
-                exist = false;
-                break;
-            }
-            dot1 = dot2;
-        }
-        if (exist) {
-            key = s.substr(dot1 + 1);
-            if (currentObj->elements.count(key))cout << currentObj->elements[key] << endl;
-            else exist = false;
-        }
-        if (!exist)cout << "null\n";
+    vector<string> storage;
+    unordered_map<string, int> lookup;
+    vector<unordered_map<string, vector<int>>> search;
+    int n = 5;
+    int entryID = 0;
+
+    while (n--) {
+        string input;
+        getline(cin, input);
+        add_JSON(input, entryID, storage, lookup, search);
+        entryID++;
     }
+
+    cout << "hello";
 }
 
-void query::decode_JSON(string input) {
-    string key, value;
-    string temp;
-    Json *Obj = nullptr, *currentObj = nullptr;
-    Json *rootObj;
-    size_t end_quote;
-    bool key_time;
+void decode_JSON(string input, vector<string> &categories, vector<string> &contents) {
     int i = 0;
+    string key, value, temp;
+    bool ifKey;
+    size_t end_quote;
     while (i < input.length()) {
         switch (input[i]) {
             case '{':
-                Obj = new Json;
-                if (key.compare("")) {
-                    Obj->parent = currentObj;
-                    currentObj->objects[key] = Obj;
-                } else {
-                    Obj->parent = Obj;
-                    rootObj = Obj;
-                }
-                currentObj = Obj;
-                key_time = true;
+                ifKey = true;
                 break;
             case ',':
-                if (value.compare(""))currentObj->elements[key] = value;
+                if (value.compare("")) {
+                    categories.push_back(key);
+                    contents.push_back(value);
+                }
                 value = "";
-                key_time = true;
+                ifKey = true;
                 break;
             case '}':
-                if (value.compare(""))currentObj->elements[key] = value;
+                if (value.compare("")) {
+                    categories.push_back(key);
+                    contents.push_back(value);
+                }
                 value = "";
-                key_time = true;
-                currentObj = currentObj->parent;
+                ifKey = true;
                 break;
             case '\"':
                 end_quote = input.find('\"', i + 1);
                 temp = input.substr(i + 1, end_quote - i - 1);
-                if (key_time) key = temp;
-                else value = '\"' + temp + '\"';
+                if (ifKey)
+                    key = temp;
+                else
+                    value = '\"' + temp + '\"';
                 i = end_quote;
                 break;
             case ':':
-                key_time = false;
+                ifKey = false;
                 break;
             case ' ':
                 break;
             default:
-                if (!key_time)value.push_back(input[i]);
+                if (!ifKey)
+                    value.push_back(input[i]);
                 break;
         }
         i++;
+    }
+}
+
+void add_JSON(string input, int entryID, vector<string> &storage, unordered_map<string, int> &lookup,
+              vector<unordered_map<string, vector<int>>> &search) {
+    vector<string> categories;
+    vector<string> contents;
+
+    storage.push_back(input);
+    decode_JSON(input, categories, contents);
+
+    if (lookup.empty()) {
+        search.resize(categories.size());
+        for (int j = 0; j != (int) categories.size(); ++j) {
+            lookup[categories[j]] = j;
+        }
+    }
+
+    for (int j = 0; j != (int) categories.size(); ++j) {
+        search[lookup[categories[j]]][contents[j]].push_back(entryID);
     }
 }
