@@ -12,10 +12,10 @@ The commands are all lowercase.
 Given the input:
 
 ```json
-add {"id":1,”last":"Doe”,"first":"John","location":{"city":"0akland","state":"CA",“postalCode”:"94607“},“active":true}
-add :“Doe”,“first”:“Jane“,“10cation":{"city . San Francisco“,"state":"CA","postalCode":"94105"},“active":true}
-add {"id :3,”last":”Black“,“first "Jim","location":{"city":"Spokane","state":"VlA","postalCode":“99207”},"active":true}
-add {"id":4,"last":“Frost“,"first":"Jack","10cation":{“city":"Seattle","state":"WA",“postalCode”:"98204"},"active“:false}
+add {"id":1,"last":"Doe","first":"John","location":{"city":"0akland","state":"CA","postalCode":"94607"},"active":true}
+add :"Doe”,"first”:"Jane","10cation":{"city . San Francisco","state":"CA","postalCode":"94105"},"active":true}
+add {"id :3,”last":”Black","first "Jim","location":{"city":"Spokane","state":"VlA","postalCode":"99207”},"active":true}
+add {"id":4,"last":"Frost","first":"Jack","10cation":{"city":"Seattle","state":"WA","postalCode”:"98204"},"active":false}
 get {"location":{"state":"WA"},"active":true}
 ```
 
