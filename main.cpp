@@ -2,26 +2,24 @@
 
 using namespace std;
 
-void decode_JSON(const string &input, vector<string> &categories, vector<string> &contents);
+void decode_JSON(string, vector<string> &, vector<string> &);
 
-void add_JSON(const string &input, int entryID, vector<string> &storage, unordered_map<string, int> &lookup,
-              vector<unordered_map<string, vector<int>>> &search);
+void
+add_JSON(string, int, vector<string> &, unordered_map<string, int> &, vector<unordered_map<string, vector<int>>> &);
 
-void get_JSON(const string &input, vector<string> &storage, unordered_map<string, int> &lookup,
-              vector<unordered_map<string, vector<int>>> &search);
+void get_JSON(string, vector<string> &, unordered_map<string, int> &, vector<unordered_map<string, vector<int>>> &);
 
-//void delete_JSON(string input);
+void delete_JSON(string, vector<string> &, unordered_map<string, int> &, vector<unordered_map<string, vector<int>>> &);
 
-vector<int> getIntersection(vector<vector<int> > &sets);
+vector<int> getIntersection(vector<vector<int> > &);
 
 int main() {
     vector<string> storage;
     unordered_map<string, int> lookup;
     vector<unordered_map<string, vector<int>>> search;
-    int n = 5;
     int entryID = 0;
 
-    while (n--) {
+    while (1) {
         string input;
         getline(cin, input);
 
@@ -31,18 +29,18 @@ int main() {
                 entryID++;
                 break;
             case 'g':
-                get_JSON(input.substr(3), storage, lookup, search);\
+                get_JSON(input.substr(3), storage, lookup, search);
                 break;
-
+            case 'd':
+                delete_JSON(input.substr(6), storage, lookup, search);
+                break;
             default:
                 cerr << "error." << endl;
         }
     }
-
-    cout << "hello";
 }
 
-void decode_JSON(const string &input, vector<string> &categories, vector<string> &contents) {
+void decode_JSON(string input, vector<string> &categories, vector<string> &contents) {
     int i = 0;
     string key, value, temp;
     bool ifKey;
@@ -91,7 +89,7 @@ void decode_JSON(const string &input, vector<string> &categories, vector<string>
     }
 }
 
-void add_JSON(const string &input, int entryID, vector<string> &storage, unordered_map<string, int> &lookup,
+void add_JSON(string input, int entryID, vector<string> &storage, unordered_map<string, int> &lookup,
               vector<unordered_map<string, vector<int>>> &search) {
     vector<string> categories;
     vector<string> contents;
@@ -111,7 +109,7 @@ void add_JSON(const string &input, int entryID, vector<string> &storage, unorder
     }
 }
 
-void get_JSON(const string &input, vector<string> &storage, unordered_map<string, int> &lookup,
+void get_JSON(string input, vector<string> &storage, unordered_map<string, int> &lookup,
               vector<unordered_map<string, vector<int>>> &search) {
     vector<string> categories;
     vector<string> contents;
@@ -123,17 +121,38 @@ void get_JSON(const string &input, vector<string> &storage, unordered_map<string
         if (search[lookup_number].find(contents[j]) != search[lookup_number].end()) {
             for (auto t: search[lookup[categories[j]]][contents[j]])
                 partial_results[j].push_back(t);
-        } else {
-            cout << "0 entries found\n% ";
+        } else
             return;
-        }
     }
     vector<int> full_results = getIntersection(partial_results);
     for (auto c: full_results)
-        cout << storage[c] << endl;
+        if (storage[c] != "null")
+            cout << storage[c] << endl;
 }
 
-vector<int> getIntersection(vector<vector<int> > &sets) {
+void delete_JSON(string input, vector<string> &storage, unordered_map<string, int> &lookup,
+                 vector<unordered_map<string, vector<int>>> &search) {
+    vector<string> categories;
+    vector<string> contents;
+
+    decode_JSON(input, categories, contents);
+    vector<vector<int>> partial_results(categories.size());
+    for (int j = 0; j != (int) categories.size(); ++j) {
+        int lookup_number = lookup[categories[j]];
+        if (search[lookup_number].find(contents[j]) != search[lookup_number].end()) {
+            for (auto t: search[lookup[categories[j]]][contents[j]])
+                partial_results[j].push_back(t);
+        } else
+            return;
+    }
+    vector<int> full_results = getIntersection(partial_results);
+
+    for (auto c: full_results) {
+        storage[c] = "null";
+    }
+}
+
+vector<int> getIntersection(vector<vector<int>> &sets) {
     vector<int> result;
     int smallest = 0;
     int minSize = (int) sets[0].size();
