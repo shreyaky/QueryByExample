@@ -51,3 +51,29 @@ Yield:
 {"type":"list","list":[2,3,4,5]}
 {"type":"list","list":[3,4,5,6]}
 ```
+
+## Usage
+
+In the command line, type the command `make` to use the prepared Makefile, or use the following commands:
+
+```
+> g++ -std=c++17 -Wconversion -Wall -Werror -Wextra -pedantic  -O3 -DNDEBUG -c qbe.cpp
+> g++ -std=c++17 -Wconversion -Wall -Werror -Wextra -pedantic  -O3 -DNDEBUG qbe.o -o qbe
+```
+
+to run the program as `qbe`.
+
+To test the program, use the following commands:
+
+```
+> ./qbe < testcase/input001.txt > output001.txt
+> ./qbe < testcase/input002.txt > output002.txt
+```
+
+To test the correctness of the program, use the following commands:
+
+```
+> diff output001.txt testcase/output001.txt
+> diff output002.txt testcase/output002.txt
+```
+
